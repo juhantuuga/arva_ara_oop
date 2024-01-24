@@ -1,0 +1,58 @@
+"""
+Numbri äraarvamise mäng, koos edetabeliga
+"""
+from random import randint
+
+pc_rand_num = randint(1, 100)
+steps = 0
+game_over = False
+player_name = ""
+valid_attempt = True # Petta ei tohi
+
+def ask():
+    global game_over, steps, player_name, valid_attempt
+
+    user_num = int(input('Sisesta number 1-100ni: '))
+    if user_num > pc_rand_num and user_num != 10000:
+        steps += 1
+        print('Väiksem')
+    elif user_num < pc_rand_num and user_num != 10000:
+        steps += 1
+        print('Suurem')
+    elif user_num == pc_rand_num and user_num != 10000:
+        steps += 1
+        game_over = True
+        print(f'Juhuu, ära arvasid. Õige vastus oli {pc_rand_num}. Sammude arv {steps}.')
+        player_name = input("Sisesta oma nimi: ")  # Küsime mängija nime
+        if player_name == '':
+          print('Nime sisestamine kohustuslik')
+          player_name = input("Sisesta oma nimi: ")
+          if player_name != '':
+              save_to_file(player_name, pc_rand_num, steps)
+        else:    
+          save_to_file(player_name, pc_rand_num, steps)
+    elif user_num == 10000:
+        valid_attempt = False
+        steps += 1
+        print(f'Opaa, leidsid mu nõrga koha. Pssst! Õige vastus on {pc_rand_num}')
+
+def save_to_file(name, number, steps):
+    if valid_attempt == True:  # Testime, ega tegu ei ole petjaga
+        with open("edetabel.txt", "a") as file:
+            file.write(f"{name};{number};{steps}\n")
+
+def lets_play():
+    global game_over, pc_rand_num, steps, valid_attempt
+
+    while not game_over:
+        ask()
+
+    answer = input('Kas mängime veel? [J/E] ')
+    if answer.lower() == 'j':
+        pc_rand_num = randint(1, 100)
+        steps = 0
+        game_over = False
+        valid_attempt = True
+        lets_play()
+
+lets_play()
